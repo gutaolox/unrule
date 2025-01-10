@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "unrule",
+    "name": "Unrule",
     "slug": "unrule",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.gutaolox.unrule"
     },
     "web": {
       "bundler": "metro",
@@ -41,10 +42,34 @@
             "./assets/fonts/Roboto-BoldItalic.ttf"
           ]
         }
+      ],
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": true,
+          "useSQLCipher": true,
+          "android": {
+            "enableFTS": false,
+            "useSQLCipher": false
+          },
+          "ios": {
+            "customBuildFlags": [
+              "-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"
+            ]
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "84bdcbf6-20ca-4115-ba12-baa6728edd15"
+      }
     }
   }
 }

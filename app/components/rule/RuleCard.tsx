@@ -1,37 +1,23 @@
 import { Card } from "@/components/ui/card";
-import {
-  Checkbox,
-  CheckboxIcon,
-  CheckboxIndicator,
-} from "@/components/ui/checkbox";
 import { Text } from "@/components/ui/text";
-import { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import React from "react";
+import CheckBoxControl from "./CheckBoxControl";
 
 interface RuleCardProps {
   text: string;
 }
 
 const RuleCard: React.FC<RuleCardProps> = ({ text }) => {
-  const [checked, setChecked] = useState(false);
-
-  const handleCheck = (value: boolean) => {
-    console.log(value);
-    setChecked(value);
-  };
+  
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      >
       <Card style={styles.card}>
         <View style={styles.row}>
-          <View style={styles.checkboxContainer}>
-            <Checkbox isChecked={checked} onChange={handleCheck} value={"aaa"}>
-              <CheckboxIndicator>
-                <CheckboxIcon />
-              </CheckboxIndicator>
-            </Checkbox>
-          </View>
+          <CheckBoxControl onCheck={(value) => console.log(value)} />
           <View style={styles.textContainer}>
             <Text style={styles.text}>{text}</Text>
           </View>
@@ -47,12 +33,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
+    minHeight:100
   },
   card: {
-    width: "80%",
-    height: "25%",
+    width: "90%",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 10,
+    shadowColor: "#000",
+    boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
   },
   row: {
     flexDirection: "row",
@@ -60,12 +50,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
   },
-  checkboxContainer: {
-    flex: 0.1,
-  },
   textContainer: {
     flex: 0.8,
-    
   },
   text: {
     marginLeft: 10,

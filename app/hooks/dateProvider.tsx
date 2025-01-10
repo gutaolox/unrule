@@ -1,41 +1,41 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState } from 'react';
 
-// Crie o contexto
-const DateContext = createContext<any>(null);// TODO: Definir o tipo de dado
+interface DateContextProps {
+    selectedDate: Date;
+    setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
+    nextDate: () => void;
+    previousDate: () => void;
+}
 
-// Crie o provider
-const DateProvider: React.FC = ({ children }) => {
-    const [data, setData] = useState<any>(null);
+export const DateContext = createContext<DateContextProps>({
+    selectedDate: new Date(),
+    setSelectedDate: () => {},
+    nextDate: () => {},
+    previousDate: () => {},
+});
 
-    // Simule uma busca de dados
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Faça a busca de dados aqui
-                // const response = await fetch('https://api.example.com/rules');
-                // const data = await response.json();
-                // setData(data);
+const DateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
-                // Exemplo de dados fictícios
-                const fakeData = [
-                    { id: 1, name: 'Rule 1' },
-                    { id: 2, name: 'Rule 2' },
-                    { id: 3, name: 'Rule 3' },
-                ];
-                setData(fakeData);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    const nextDate = () => {
+        const nextDay = new Date(selectedDate);
+        nextDay.setDate(selectedDate.getDate() + 1);
+        setSelectedDate(nextDay);
+    };
 
-        fetchData();
-    }, []);
+    const previousDate = () => {
+        const previousDay = new Date(selectedDate);
+        previousDay.setDate(selectedDate.getDate() - 1);
+        setSelectedDate(previousDay);
+    };
 
     return (
-        <DateContext.Provider value={{data}}>
+        <DateContext.Provider
+            value={{ selectedDate, setSelectedDate, nextDate, previousDate }}
+        >
             {children}
         </DateContext.Provider>
     );
 };
 
-export { DateContext, DateProvider };
+export default DateProvider;
