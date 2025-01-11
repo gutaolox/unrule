@@ -1,12 +1,44 @@
 import {
   CreateRuleProps,
+  FrequencyType,
   ReorderRuleProps,
   RuleListInfo,
   SaveHistoryProps,
 } from "../entity/ruleBase";
 import { getDBConnection } from "./database";
+import * as Crypto from "expo-crypto";
 
+// Função para selecionar todos os registros da tabela Rule
+export const getAllRules = async () => {
+  const db = await getDBConnection();
+  const query = "SELECT * FROM Rule";
+  const results = await db.getAllAsync(query);
+  return results;
+};
 
+// Função para selecionar todos os registros da tabela History
+export const getAllHistory = async () => {
+  const db = await getDBConnection();
+  const query = "SELECT * FROM History";
+  const results = await db.getAllAsync(query);
+  return results;
+};
+
+// Função para selecionar todos os registros da tabela WeekDays
+export const getAllWeekDays = async () => {
+  const db = await getDBConnection();
+  const query = "SELECT * FROM WeekDays";
+  const results = await db.getAllAsync(query);
+  return results;
+};
+
+// Função para selecionar todos os registros da tabela RuleWeekDays
+export const getAllRuleWeekDays = async () => {
+  const db = await getDBConnection();
+  const query = "SELECT * FROM RuleWeekDays";
+  const results = await db.getAllAsync(query);
+  return results;
+};
 
 export const createTables = async () => {
   const db = await getDBConnection();
@@ -67,13 +99,13 @@ export const createTables = async () => {
   `);
 
   const weekDays = [
-    { id: 0, name: "Monday", code: 0 },
-    { id: 1, name: "Tuesday", code: 1 },
-    { id: 2, name: "Wednesday", code: 2 },
-    { id: 3, name: "Thursday", code: 3 },
-    { id: 4, name: "Friday", code: 4 },
-    { id: 5, name: "Saturday", code: 5 },
-    { id: 6, name: "Sunday", code: 6 },
+    { id: 0, name: "Sunday", code: 0 },
+    { id: 1, name: "Monday", code: 1 },
+    { id: 2, name: "Tuesday", code: 2 },
+    { id: 3, name: "Wednesday", code: 3 },
+    { id: 4, name: "Thursday", code: 4 },
+    { id: 5, name: "Friday", code: 5 },
+    { id: 6, name: "Saturday", code: 6 },
   ];
 
   for (const day of weekDays) {
@@ -86,6 +118,24 @@ export const createTables = async () => {
   }
 };
 
+export const resetDatabase = async () => {
+  const db = await getDBConnection();
+
+  const dropRuleWeekDaysTableQuery = "DROP TABLE IF EXISTS RuleWeekDays";
+  const dropWeekDaysTableQuery = "DROP TABLE IF EXISTS WeekDays";
+  const dropHistoryTableQuery = "DROP TABLE IF EXISTS History";
+  const dropRuleTableQuery = "DROP TABLE IF EXISTS Rule";
+
+  await db.execAsync(`
+    ${dropRuleWeekDaysTableQuery};
+    ${dropWeekDaysTableQuery};
+    ${dropHistoryTableQuery};
+    ${dropRuleTableQuery};
+  `);
+
+  console.log("Database reset successfully");
+};
+
 export async function getRulesWithHistory(date: Date): Promise<RuleListInfo[]> {
   const db = await getDBConnection();
   const formattedDate = date.toISOString().split("T")[0]; // Formatar a data para YYYY-MM-DD
@@ -96,14 +146,16 @@ export async function getRulesWithHistory(date: Date): Promise<RuleListInfo[]> {
     FROM Rule
     LEFT JOIN History ON Rule.id = History.ruleId
     LEFT JOIN RuleWeekDays ON Rule.id = RuleWeekDays.ruleId
-    INNER JOIN WeekDays ON RuleWeekDays.weekDayId = WeekDays.id AND WeekDays.code = ?
-    WHERE (History.representationDate IS NULL OR History.representationDate = ?)
+    LEFT JOIN WeekDays ON RuleWeekDays.weekDayId = WeekDays.id
+    WHERE  (WeekDays.id = ? OR WeekDays.code IS NULL)
     AND Rule.active = 1
     ORDER BY Rule.listingPosition;
   `;
 
+  
+
   const results = await db.getAllAsync<RuleListInfo>(query, [
-    formattedDate,
+    date.getDay(),
     formattedDate,
   ]);
   const rules = [] as RuleListInfo[];
@@ -120,19 +172,23 @@ export async function saveHistory(history: SaveHistoryProps) {
   const query = `
     INSERT OR REPLACE INTO History (id, ruleId, representationDate, status, value, targetValue)
     VALUES (
-      (SELECT id FROM History WHERE ruleId = ? AND representationDate = ?),
+      COALESCE((SELECT id FROM History WHERE ruleId = ? AND representationDate = ?), ?),
       ?, ?, ?, ?, ?
     );
   `;
   await db.runAsync(query, [
     history.ruleId,
     history.representationDate.toISOString(),
+    Crypto.randomUUID(),
     history.ruleId,
     history.representationDate.toISOString(),
     history.status ? 1 : 0,
-    history.value,
-    history.historyTargetValue,
+    history.value ?? null,
+    history.historyTargetValue ?? null,
   ]);
+
+  const teste = await getAllHistory();
+  console.log(teste);
 }
 
 export async function updateOrder(reorderInfo: ReorderRuleProps[]) {
@@ -150,31 +206,31 @@ export async function updateOrder(reorderInfo: ReorderRuleProps[]) {
 
 export async function createRule(rule: CreateRuleProps) {
   const db = await getDBConnection();
-  const ruleId = crypto.randomUUID();
+  const ruleId = Crypto.randomUUID();
   const query = `
-    INSERT INTO Rule (id, name, description, active, weekDays, daysInMonth, frequencyType, timeOfTheDay, ruleType, targetValue)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    INSERT INTO Rule (id, name, description, active, daysInMonth, frequencyType, timeOfTheDay, ruleType, targetValue)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
   `;
   await db.runAsync(query, [
     ruleId,
     rule.name,
     rule.description,
-    rule.active ? 1 : 0,
-    JSON.stringify(rule.weekDays),
-    JSON.stringify(rule.daysInMonth.map((date) => date.toISOString())),
+    1,
+    JSON.stringify(rule.daysInMonth?.map((date) => date.toISOString()) ?? []),
     rule.frequencyType,
     rule.timeOfTheDay,
-    rule.ruleType,
+    rule.ruleType ?? "Discrete", //TODO: remover nullable depois
     rule.targetValue ?? null,
   ]);
-
-  const weekDaysQuery = `
+  if (rule.frequencyType === FrequencyType.Weekly) {
+    const weekDaysQuery = `
     INSERT INTO RuleWeekDays (ruleId, weekDayId)
     VALUES (?, ?);
   `;
 
-  for (const weekDayId of rule.weekDays) {
-    await db.runAsync(weekDaysQuery, ruleId, weekDayId);
+    for (const weekDayId of rule.weekDays) {
+      await db.runAsync(weekDaysQuery, ruleId, weekDayId);
+    }
   }
 }
 

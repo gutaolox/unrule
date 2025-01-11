@@ -10,12 +10,14 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import React from "react";
-import { View, Text } from "react-native";
+import { StyleProp, ViewStyle } from "react-native";
 
 export interface SelectFormattedProps {
   value: string;
+  defaultValue?: string;
   onChange: (value: string) => void;
   options: { [key: string]: string };
+  style: StyleProp<ViewStyle>;
 }
 
 const SelectedFormatted: React.FC<SelectFormattedProps> = (props) => {
@@ -25,9 +27,11 @@ const SelectedFormatted: React.FC<SelectFormattedProps> = (props) => {
       onValueChange={(valueSelected) => {
         props.onChange(valueSelected);
       }}
+      defaultValue={props.defaultValue}
+      style={props.style}
     >
       <SelectTrigger variant="outline" size="md">
-        <SelectInput placeholder="Select option" />
+        <SelectInput style={{height:50}} placeholder="Select option" />
       </SelectTrigger>
       <SelectPortal>
         <SelectBackdrop />

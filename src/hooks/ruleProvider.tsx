@@ -17,6 +17,7 @@ import {
   disableRule,
   enableRule,
   getRulesWithHistory,
+  resetDatabase,
   saveHistory,
   updateOrder,
 } from "../services/rules";
@@ -52,10 +53,21 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
   const { selectedDate } = useContext(DateContext);
 
   const createRuleService = async (rule: CreateRuleProps) => {
-    await createRule(rule);
+    try {
+      await createRule(rule);
+      fetchData(selectedDate);
+    }
+    catch (error) {
+      console.error("Failed to create rule", error);
+    }
   };
   const saveHistoryService = async (history: SaveHistoryProps) => {
-    await saveHistory(history);
+    try {
+      await saveHistory(history);
+    }
+    catch (error) {
+      console.error("Failed to save history", error);
+    }
   };
   const updateOrderService = async (reorderInfo: ReorderRuleProps[]) => {
     await updateOrder(reorderInfo);
@@ -69,8 +81,8 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setDatabase = useCallback(async () => {
     try {
-      console.log("teste");
       await createTables();
+      //resetDatabase()
     } catch (error) {
       console.error("Setting up database",  error);
     }
@@ -78,9 +90,9 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchData = useCallback(async (selectedParameter: Date) => {
     try {
-      //const rules = await getRulesWithHistory(selectedParameter);
-      //setData(rules);
-      setData(mockRuleListInfo);
+      const rules = await getRulesWithHistory(selectedParameter);
+      console.log(rules);
+      setData(rules);
     } catch (error) {
       console.error("Failed to fetch data", error);
     }

@@ -48,3 +48,21 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## TODO
+
+- Permitir scroll da tela com drag and drop funcionando
+- arrumar listing positon
+- Mudar a cor do botão
+- Seletor de data
+- Tarefas mensais
+- Menu pra tela de tarefas unicas
+- Tela de tarefas unicas
+- Menu em tab para seleção de visualização
+- Numero de tarefas concluidas por total
+- Desabilitar hábito
+- Tela de detalhes do hábito
+- Hábito com valor continuo
+- Hábito de registro
+- Tela com todos os resgistros (os deletados ficam apagadinhos)
+- Visualização de historico

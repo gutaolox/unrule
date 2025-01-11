@@ -18,13 +18,14 @@ export interface RulesHistyory {
   representationDate: Date;
   completionDate: Date;
   status: boolean;
-  value: string;
-  historyTargetValue: string;
+  value?: string;
+  historyTargetValue?: string;
 }
 
 export type CreateRuleProps = Omit<Rule, "id" | "listingPosition">;
 export type ReorderRuleProps = Pick<Rule, "id" | "listingPosition">;
 export type SaveHistoryProps = Omit<RulesHistyory, "id" | "completionDate">;
+export type CreateRuleHistoryProps = Omit<SaveHistoryProps, "status">;
 export interface RuleListInfo
   extends Rule,
     Omit<RulesHistyory, "id" | "weekDays"> {
@@ -62,11 +63,11 @@ export enum WeekDay {
 }
 
 export const weekDaysOptions = [
-  { id: 0, name: "Monday" },
-  { id: 1, name: "Tuesday" },
-  { id: 2, name: "Wednesday" },
-  { id: 3, name: "Thursday" },
-  { id: 4, name: "Friday" },
-  { id: 5, name: "Saturday" },
-  { id: 6, name: "Sunday" },
+  { id: 0, name: "Sunday" },
+  { id: 1, name: "Monday" },
+  { id: 2, name: "Tuesday" },
+  { id: 3, name: "Wednesday" },
+  { id: 4, name: "Thursday" },
+  { id: 5, name: "Friday" },
+  { id: 6, name: "Saturday" },
 ];

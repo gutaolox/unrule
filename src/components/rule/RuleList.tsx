@@ -4,9 +4,11 @@ import DragList, { DragListRenderItemInfo } from "react-native-draglist";
 import RuleCard from "./RuleCard";
 import { RuleContext } from "@/src/hooks/ruleProvider";
 import { RuleListInfo } from "@/src/entity/ruleBase";
+import { DateContext } from "@/src/hooks/dateProvider";
 
 const RuleList: React.FC = () => {
   const { rules, setRules, updateOrderService } = useContext(RuleContext);
+  const { selectedDate } = useContext(DateContext);
   function renderItem(info: DragListRenderItemInfo<RuleListInfo>) {
     const { item, onDragStart, onDragEnd, isActive } = info;
     return (
@@ -16,7 +18,13 @@ const RuleList: React.FC = () => {
         onPressIn={onDragStart}
         onPressOut={onDragEnd}
       >
-        <RuleCard text={item.description} />
+        <RuleCard
+          text={item.name}
+          data={{
+            ruleId: item.id,
+            representationDate: selectedDate,
+          }}
+        />
       </TouchableOpacity>
     );
   }
@@ -35,8 +43,12 @@ const RuleList: React.FC = () => {
     }
     copy.splice(toIndex, 0, removed[0]); // Now insert at the new pos
     setRules(copy);
-    //arrumar sincronizacoa banco
-    // formulario de criacao de regra
+    await updateOrderService(
+      copy.map((rule) => ({
+        id: rule.id,
+        listingPosition: rule.listingPosition,
+      }))
+    );
     // fazer seleção de data
   }
 
