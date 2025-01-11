@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { View, StyleSheet } from "react-native";
 import React from "react";
-import CheckBoxControl from "./CheckBoxControl";
+import CheckBoxControl from "../utils/CheckBoxControl";
 
 interface RuleCardProps {
   text: string;

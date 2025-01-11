@@ -5,8 +5,8 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { RuleProvider } from "./hooks/ruleProvider";
-import DateProvider from "./hooks/dateProvider";
+import { RuleProvider } from "../src/hooks/ruleProvider";
+import DateProvider from "../src/hooks/dateProvider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,7 +28,9 @@ export default function RootLayout() {
     <GluestackUIProvider mode="light">
       <DateProvider>
         <RuleProvider>
-          <Stack />
+          <Stack>
+            <Stack.Screen name="(rules)" options={{ headerShown: false }} />
+          </Stack>
         </RuleProvider>
       </DateProvider>
     </GluestackUIProvider>

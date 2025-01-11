@@ -2,8 +2,8 @@ import React, { useContext } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import DragList, { DragListRenderItemInfo } from "react-native-draglist";
 import RuleCard from "./RuleCard";
-import { RuleContext } from "@/app/hooks/ruleProvider";
-import { RuleListInfo } from "@/app/entity/ruleBase";
+import { RuleContext } from "@/src/hooks/ruleProvider";
+import { RuleListInfo } from "@/src/entity/ruleBase";
 
 const RuleList: React.FC = () => {
   const { rules, setRules, updateOrderService } = useContext(RuleContext);
@@ -34,10 +34,10 @@ const RuleList: React.FC = () => {
       removed[0].listingPosition = 1;
     }
     copy.splice(toIndex, 0, removed[0]); // Now insert at the new pos
-    setRules(copy); 
-    //arrumar sincronizacoa banco 
+    setRules(copy);
+    //arrumar sincronizacoa banco
     // formulario de criacao de regra
-    // fazer seleção de data 
+    // fazer seleção de data
   }
 
   function keyExtractor(item: RuleListInfo) {
@@ -45,8 +45,7 @@ const RuleList: React.FC = () => {
   }
 
   return (
-    <View
-      style={styles.container}>
+    <View style={styles.container}>
       <DragList
         data={rules}
         keyExtractor={keyExtractor}

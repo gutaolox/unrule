@@ -8,9 +8,10 @@ import { View, StyleSheet } from "react-native";
 
 interface CheckBoxControlProps {
   onCheck: (value: boolean) => void;
+  value: string;
 }
 
-const CheckBoxControl = ({ onCheck }: CheckBoxControlProps) => {
+const CheckBoxControl = ({ onCheck, value = "standard" }: CheckBoxControlProps) => {
   const [checked, setChecked] = useState(false);
 
   const handleCheck = (value: boolean) => {
@@ -20,7 +21,7 @@ const CheckBoxControl = ({ onCheck }: CheckBoxControlProps) => {
 
   return (
     <View style={styles.container}>
-      <Checkbox isChecked={checked} onChange={handleCheck} value={"aaa"}>
+      <Checkbox isChecked={checked} onChange={handleCheck} value={value}>
         <CheckboxIndicator>
           <CheckboxIcon />
         </CheckboxIndicator>
