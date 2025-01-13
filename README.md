@@ -51,18 +51,41 @@ Join our community of developers creating universal apps.
 
 ## TODO
 
-- Permitir scroll da tela com drag and drop funcionando
-- arrumar listing positon
-- Mudar a cor do botão
-- Seletor de data
+- Permitir scroll da tela com drag and drop funcionando - OK
+- Mudar a cor do botão - OK 
+- arrumar listing positon - OK
+- Desabilitar hábito - OK 
+- Internacionalizacao - OK
+- Seletor de data - OK
+- {MVP} 
+- Numero de tarefas concluidas por total - OK
+- Usar reducer parar a rules api
+- Atualizar tela puxando pra cima
 - Tarefas mensais
+- Criação de icone e colocar no header
 - Menu pra tela de tarefas unicas
+   - fazr divisao de as de hoje e as on range
 - Tela de tarefas unicas
 - Menu em tab para seleção de visualização
-- Numero de tarefas concluidas por total
-- Desabilitar hábito
 - Tela de detalhes do hábito
 - Hábito com valor continuo
 - Hábito de registro
-- Tela com todos os resgistros (os deletados ficam apagadinhos)
+- Edição de regra
+- Justificativa de falta
+- Como voce se sentiu
+- Montar um historico
+   - Salvar versão antiga pra historioco
+- Tela com todos os registros (os deletados ficam apagadinhos)
+- tela com desabilitados exclusiva
+   - Filtro nessa tela??
+- Objetivos linkados
+- telas de  Lembretes diarios
 - Visualização de historico
+   - Selecionar range de data padrao 1 semana/ 1 mes / 3 meses / 6 meses / 1 ano\
+   - Visualizar em numeros quantidade completos por total que deveria ter acontecido
+   - visualizar todas as data e mostrar justificativas se tiver junto com se completou ou não 
+   - agrupar por semana?? e por mes??
+   - se for dado continuo ou de armazenamento mostrar grafico
+- Back up de informação
+- Melhorar estilos
+- Login

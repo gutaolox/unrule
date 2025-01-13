@@ -9,7 +9,8 @@ import {
   SelectPortal,
   SelectTrigger,
 } from "@/components/ui/select";
-import React from "react";
+import { InternacionalizationContext } from "@/src/hooks/internacionalizationProvider";
+import React, { useContext } from "react";
 import { StyleProp, ViewStyle } from "react-native";
 
 export interface SelectFormattedProps {
@@ -21,6 +22,7 @@ export interface SelectFormattedProps {
 }
 
 const SelectedFormatted: React.FC<SelectFormattedProps> = (props) => {
+  const { getMessage } = useContext(InternacionalizationContext);
   return (
     <Select
       selectedValue={props.value}
@@ -28,10 +30,13 @@ const SelectedFormatted: React.FC<SelectFormattedProps> = (props) => {
         props.onChange(valueSelected);
       }}
       defaultValue={props.defaultValue}
+      initialLabel={
+        getMessage(props.defaultValue ?? "") || getMessage("SelectOption")
+      }
       style={props.style}
     >
       <SelectTrigger variant="outline" size="md">
-        <SelectInput style={{height:50}} placeholder="Select option" />
+        <SelectInput style={{ height: 50 }} placeholder="Select option" />
       </SelectTrigger>
       <SelectPortal>
         <SelectBackdrop />
@@ -40,7 +45,11 @@ const SelectedFormatted: React.FC<SelectFormattedProps> = (props) => {
             <SelectDragIndicator />
           </SelectDragIndicatorWrapper>
           {Object.values(props.options).map((type) => (
-            <SelectItem key={type} label={type} value={type} />
+            <SelectItem
+              key={type}
+              label={getMessage(type) ?? type}
+              value={type}
+            />
           ))}
         </SelectContent>
       </SelectPortal>

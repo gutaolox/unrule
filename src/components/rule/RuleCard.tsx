@@ -1,28 +1,40 @@
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet,  TouchableOpacity } from "react-native";
 import React, { useContext } from "react";
 import CheckBoxControl from "../utils/CheckBoxControl";
 import { RuleContext } from "@/src/hooks/ruleProvider";
-import { CreateRuleHistoryProps } from "@/src/entity/ruleBase";
+
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { SaveHistoryProps } from "@/src/entity/ruleBase";
 
 interface RuleCardProps {
   text: string;
-  data: CreateRuleHistoryProps;
+  data: SaveHistoryProps;
 }
 
 const RuleCard: React.FC<RuleCardProps> = ({ text,data }) => {
-  const { saveHistoryService } = useContext(RuleContext)
+  const { saveHistoryService, disableRuleService } = useContext(RuleContext)
   return (
     <View style={styles.container}>
       <Card style={styles.card}>
         <View style={styles.row}>
           <CheckBoxControl
-            onCheck={(value) => saveHistoryService({...data,status:value})}
+            onCheck={(value) => saveHistoryService({ ...data, status: value })}
             value={text}
+            initialValue={data.status}
           />
           <View style={styles.textContainer}>
             <Text style={styles.text}>{text}</Text>
+          </View>
+          <View>
+            <TouchableOpacity onPress={() => disableRuleService(data.ruleId)}>
+              <MaterialIcons
+                name="disabled-by-default"
+                size={24}
+                color="grey"
+              />
+            </TouchableOpacity>
           </View>
         </View>
       </Card>

@@ -22,10 +22,10 @@ export interface RulesHistyory {
   historyTargetValue?: string;
 }
 
-export type CreateRuleProps = Omit<Rule, "id" | "listingPosition">;
+export type CreateRuleProps = Omit<Rule, "id" >;
 export type ReorderRuleProps = Pick<Rule, "id" | "listingPosition">;
 export type SaveHistoryProps = Omit<RulesHistyory, "id" | "completionDate">;
-export type CreateRuleHistoryProps = Omit<SaveHistoryProps, "status">;
+
 export interface RuleListInfo
   extends Rule,
     Omit<RulesHistyory, "id" | "weekDays"> {

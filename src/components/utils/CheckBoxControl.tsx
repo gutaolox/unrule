@@ -3,21 +3,30 @@ import {
   CheckboxIcon,
   CheckboxIndicator,
 } from "@/components/ui/checkbox";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
 
 interface CheckBoxControlProps {
   onCheck: (value: boolean) => void;
   value: string;
+  initialValue?: boolean;
 }
 
-const CheckBoxControl = ({ onCheck, value = "standard" }: CheckBoxControlProps) => {
+const CheckBoxControl = ({
+  onCheck,
+  value = "standard",
+  initialValue = false,
+}: CheckBoxControlProps) => {
   const [checked, setChecked] = useState(false);
 
   const handleCheck = (value: boolean) => {
     setChecked(value);
     onCheck(value);
   };
+  useEffect(() => {
+    console.log(initialValue);
+    setChecked(initialValue);
+  }, [initialValue]);
 
   return (
     <View style={styles.container}>

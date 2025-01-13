@@ -42,12 +42,11 @@ export const getAllRuleWeekDays = async () => {
 
 export const createTables = async () => {
   const db = await getDBConnection();
-  console.log(db);
 
   const createRuleTableQuery = `
     CREATE TABLE IF NOT EXISTS Rule (
       id TEXT PRIMARY KEY NOT NULL,
-      name TEXT NOT NULL,
+      name TEXT,
       description TEXT,
       active INTEGER NOT NULL,
       daysInMonth TEXT,
@@ -188,7 +187,6 @@ export async function saveHistory(history: SaveHistoryProps) {
   ]);
 
   const teste = await getAllHistory();
-  console.log(teste);
 }
 
 export async function updateOrder(reorderInfo: ReorderRuleProps[]) {

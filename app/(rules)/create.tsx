@@ -21,6 +21,8 @@ import If from "@/src/components/utils/If";
 import { RuleContext } from "@/src/hooks/ruleProvider";
 import { navigate } from "expo-router/build/global-state/routing";
 import { router } from "expo-router";
+import { InternacionalizationContext } from "@/src/hooks/internacionalizationProvider";
+import TextTranslated from "@/src/components/utils/TextTranslated";
 
 export default function CreateRule() {
   const {
@@ -30,6 +32,7 @@ export default function CreateRule() {
     watch,
   } = useForm<Rule>();
   const { createRuleService } = useContext(RuleContext);
+  const { getMessage } = useContext(InternacionalizationContext);
   const [selectedWeekDays, setSelectedWeekDays] = useState<number[]>([]);
 
   const frequencyTypeValue = watch("frequencyType", FrequencyType.Weekly);
@@ -44,23 +47,18 @@ export default function CreateRule() {
   };
 
   useEffect(() => {
-    const subscription = watch(
-      (value, { name, type }) => {}
-      //console.log(value, name, type)
-    );
+    const subscription = watch((value, { name, type }) => {});
     return () => subscription.unsubscribe();
   }, [watch]);
 
   const onSubmit = (data: Rule) => {
-    console.log(data);
     createRuleService(data);
     router.back();
-    // Aqui você pode adicionar a lógica para salvar a regra no banco de dados
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.label}>Nome</Text>
+      <TextTranslated style={styles.label}>RuleName</TextTranslated>
       <Controller
         control={control}
         name="name"
@@ -76,10 +74,10 @@ export default function CreateRule() {
         )}
       />
       {errors.name && (
-        <Text style={styles.error}>Esse campo é obrigatório</Text>
+        <TextTranslated style={styles.error}>RequiredField</TextTranslated>
       )}
 
-      <Text style={styles.label}>Descrição</Text>
+      {/* <TextTranslated style={styles.label}>Description</TextTranslated>
       <Controller
         control={control}
         name="description"
@@ -92,9 +90,9 @@ export default function CreateRule() {
             placeholder="Digite a descrição"
           />
         )}
-      />
+      /> */}
 
-      <Text style={styles.label}>Frequência</Text>
+      <TextTranslated style={styles.label}>HowOften</TextTranslated>
       <Controller
         control={control}
         name="frequencyType"
@@ -111,11 +109,11 @@ export default function CreateRule() {
       />
 
       <If condition={frequencyTypeValue === FrequencyType.Weekly}>
-        <Text style={styles.label}>Dias da semana</Text>
+        <TextTranslated style={styles.label}>DaysOfWeek</TextTranslated>
         <Controller
           control={control}
           name="weekDays"
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange } }) => (
             <View>
               {weekDaysOptions.map((day) => (
                 <View key={day.id} style={styles.checkboxContainer}>
@@ -126,7 +124,9 @@ export default function CreateRule() {
                       onChange(newDays);
                     }}
                   />
-                  <Text style={styles.checkboxLabel}>{day.name}</Text>
+                  <TextTranslated style={styles.checkboxLabel}>
+                    {day.name}
+                  </TextTranslated>
                 </View>
               ))}
             </View>
@@ -134,7 +134,7 @@ export default function CreateRule() {
         />
       </If>
 
-      <Text style={styles.label}>Horário do dia</Text>
+      <TextTranslated style={styles.label}>TimeOfDay</TextTranslated>
       <Controller
         control={control}
         name="timeOfTheDay"
@@ -148,7 +148,11 @@ export default function CreateRule() {
         )}
       />
 
-      <Button title="Enviar" onPress={handleSubmit(onSubmit)} color="#6200ee" />
+      <Button
+        title={getMessage("Send") ?? "Send"}
+        onPress={handleSubmit(onSubmit)}
+        color="#6200ee"
+      />
     </ScrollView>
   );
 }

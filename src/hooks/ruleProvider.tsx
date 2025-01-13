@@ -32,6 +32,8 @@ interface RuleContextProps {
   disableRuleService: (id: string) => Promise<void>;
   enableRuleService: (id: string) => Promise<void>;
   setRules: React.Dispatch<React.SetStateAction<RuleListInfo[]>>;
+  representationDate: Date;
+  resetData: () => void;
 }
 
 // Crie o contexto
@@ -42,7 +44,9 @@ const RuleContext = createContext<RuleContextProps>({
   updateOrderService: async () => {},
   disableRuleService: async () => {},
   enableRuleService: async () => {},
-  setRules: () => {},
+  setRules: () => { },
+  representationDate: new Date(),
+  resetData: () => { },
 });
 
 // Crie o provider
@@ -50,22 +54,22 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [data, setData] = useState<RuleListInfo[]>([]);
-  const { selectedDate } = useContext(DateContext);
+  const [lastPosition, setLastPosition] = useState<number>(0);
+  const { selectedDate,resetDate } = useContext(DateContext);
 
   const createRuleService = async (rule: CreateRuleProps) => {
     try {
-      await createRule(rule);
+      await createRule({ ...rule, listingPosition: lastPosition });
       fetchData(selectedDate);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Failed to create rule", error);
     }
   };
   const saveHistoryService = async (history: SaveHistoryProps) => {
     try {
       await saveHistory(history);
-    }
-    catch (error) {
+      fetchData(selectedDate);
+    } catch (error) {
       console.error("Failed to save history", error);
     }
   };
@@ -74,6 +78,7 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
   };
   const disableRuleService = async (id: string) => {
     await disableRule(id);
+    await fetchData(selectedDate);
   };
   const enableRuleService = async (id: string) => {
     await enableRule(id);
@@ -84,19 +89,24 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
       await createTables();
       //resetDatabase()
     } catch (error) {
-      console.error("Setting up database",  error);
+      console.error("Setting up database", error);
     }
   }, []);
 
   const fetchData = useCallback(async (selectedParameter: Date) => {
     try {
       const rules = await getRulesWithHistory(selectedParameter);
-      console.log(rules);
+      //console.log(rules);
       setData(rules);
+      setLastPosition(rules[rules.length - 1].listingPosition + 1);
     } catch (error) {
       console.error("Failed to fetch data", error);
     }
   }, []);
+
+  const resetData = () => {
+    resetDate()
+  }
 
   useEffect(() => {
     setDatabase();
@@ -104,7 +114,7 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     fetchData(selectedDate);
-  }, [selectedDate, fetchData]);
+  }, [selectedDate]);
 
   return (
     <RuleContext.Provider
@@ -115,7 +125,9 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
         updateOrderService,
         disableRuleService,
         enableRuleService,
+        representationDate: selectedDate,
         setRules: setData,
+        resetData
       }}
     >
       {children}

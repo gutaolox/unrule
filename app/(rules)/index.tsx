@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, View, Text } from "react-native";
 import { Link } from "expo-router";
 import RuleList from "@/src/components/rule/RuleList";
+import DateSelection from "@/src/components/date/dateSelection";
+import RuleCompletion from "@/src/components/rule/RuleCompletion";
 
 export default function Index() {
   return (
@@ -14,8 +16,11 @@ export default function Index() {
       {/* data anterior //// data de hoje/selecionada a de hoje é padrão se clicar pode selecionar a data ///// proxima data*/}
       {/* total de desafios de completados/ total de desafios */}
       {/* listagem de desafios */}
+      <DateSelection />
+      <RuleCompletion />
+      
       <RuleList />
-      <Link style={styles.floatingButton} href="/(rules)/create"  asChild >
+      <Link style={styles.floatingButton} href="/(rules)/create" asChild>
         <Pressable>
           <Text style={styles.floatingButtonText}>+</Text>
         </Pressable>
@@ -30,13 +35,13 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     position: "absolute",
-    width: 60,
+    width: 60, 
     height: 60,
     alignItems: "center",
     justifyContent: "center",
     right: 20,
     bottom: 20,
-    backgroundColor: "#f4511e",
+    backgroundColor: "#4B0082",
     borderRadius: 30,
     elevation: 8,
   },
