@@ -1,10 +1,7 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { act, useContext, useRef, useState } from "react";
 import {
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
   View,
   RefreshControl,
 } from "react-native";
@@ -12,7 +9,6 @@ import DragList, { DragListRenderItemInfo } from "react-native-draglist";
 import RuleCard from "./RuleCard";
 import { RuleContext } from "@/src/hooks/ruleProvider";
 import { RuleListInfo } from "@/src/entity/ruleBase";
-import { DateContext } from "@/src/hooks/dateProvider";
 import { router } from "expo-router";
 
 const RuleList: React.FC = () => {
@@ -41,12 +37,14 @@ const RuleList: React.FC = () => {
     }
     copy.splice(toIndex, 0, removed[0]); // Now insert at the new pos
     setRules(copy);
-    // await updateOrderService(
+    // updateOrderService(
     //   copy.map((rule) => ({
     //     id: rule.id,
     //     listingPosition: rule.listingPosition,
     //   }))
-    // ); //Colocara no useEffect para não ficar chamando toda hora
+
+    // );
+    //Colocara no useEffect para não ficar chamando toda hora
     // fazer seleção de data
   }
 
@@ -58,6 +56,19 @@ const RuleList: React.FC = () => {
         style={[styles.item, isActive && styles.active]}
         onPressIn={onDragStart}
         onPressOut={onDragEnd}
+        
+        onLongPress={() => {// melhorar forma de pressionar 
+          router.navigate({
+            pathname: "/(rules)/details",
+            params: {
+              ...item,
+              status: item.status ? 1 : 0,
+              completionDate: item.completionDate?.toLocaleDateString(),
+              active: item.active ? 1 : 0,
+              representationDate: representationDate?.toLocaleDateString(),
+            },
+          });
+        }}
       >
         <RuleCard
           text={item.name}

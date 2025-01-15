@@ -23,6 +23,7 @@ import { navigate } from "expo-router/build/global-state/routing";
 import { router } from "expo-router";
 import { InternacionalizationContext } from "@/src/hooks/internacionalizationProvider";
 import TextTranslated from "@/src/components/utils/TextTranslated";
+import DaySelector from "@/src/components/utils/MonthSelector";
 
 export default function CreateRule() {
   const {
@@ -130,6 +131,22 @@ export default function CreateRule() {
                 </View>
               ))}
             </View>
+          )}
+        />
+      </If>
+
+      <If condition={frequencyTypeValue === FrequencyType.Monthly}>
+        <Controller
+          control={control}
+          name="daysInMonth"
+          defaultValue={[]}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <DaySelector
+              onSelectDay={(days) => {
+                onChange(days);
+              }}
+              selectedDays={value}
+            />
           )}
         />
       </If>

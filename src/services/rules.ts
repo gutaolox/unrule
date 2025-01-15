@@ -89,12 +89,22 @@ export const createTables = async () => {
     );
   `;
 
+  const createRuleMonthDays = `
+    CREATE TABLE IF NOT EXISTS RuleMonthDays (
+      ruleId TEXT NOT NULL,
+      dayInMonth INTEGER NOT NULL,
+      FOREIGN KEY (ruleId) REFERENCES Rule(id),
+      PRIMARY KEY (ruleId, dayInMonth)
+    );
+  `;
+
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
     ${createRuleTableQuery}
     ${createHistoryTableQuery}
     ${createWeekDaysTableQuery}
     ${createRuleWeekDaysTableQuery}
+    ${createRuleMonthDays}
   `);
 
   const weekDays = [
@@ -115,6 +125,7 @@ export const createTables = async () => {
       day.code
     );
   }
+  //await db.closeAsync()
 };
 
 export const resetDatabase = async () => {
@@ -133,36 +144,55 @@ export const resetDatabase = async () => {
   `);
 
   console.log("Database reset successfully");
+  await db.closeAsync();
 };
 
 export async function getRulesWithHistory(date: Date): Promise<RuleListInfo[]> {
   const db = await getDBConnection();
-  const formattedDate = date.toISOString().split("T")[0]; // Formatar a data para YYYY-MM-DD
+  const lastDayOfMonth = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0,
+    12
+  ).getDate(); 
 
+  const isLastDayOfMonth = lastDayOfMonth === date.getDate();
+  console.log(lastDayOfMonth);
+  console.log(date.getDate());
+  console.log(new Date(date.getFullYear(), date.getMonth(), 0, 12));
   const query = `
     SELECT Rule.*, History.representationDate, History.status, History.value, History.targetValue,
-           WeekDays.id as weekDayId, WeekDays.name as weekDayName, WeekDays.code as weekDayCode
+           WeekDays.id as weekDayId, WeekDays.name as weekDayName, WeekDays.code as weekDayCode,RuleMonthDays.dayInMonth 
+
     FROM Rule
     LEFT JOIN History ON Rule.id = History.ruleId
     LEFT JOIN RuleWeekDays ON Rule.id = RuleWeekDays.ruleId
     LEFT JOIN WeekDays ON RuleWeekDays.weekDayId = WeekDays.id
-    WHERE  (WeekDays.id = ? OR WeekDays.code IS NULL)
+    LEFT JOIN RuleMonthDays ON Rule.id = RuleMonthDays.ruleId
+    WHERE  ((Rule.frequencyType = ? AND (WeekDays.id = ? OR WeekDays.code IS NULL))
+    OR (Rule.frequencyType = ? AND ${
+      isLastDayOfMonth
+        ? "RuleMonthDays.dayInMonth > ?"
+        : "RuleMonthDays.dayInMonth = ?"
+    } ) OR (Rule.frequencyType = ?))
     AND Rule.active = 1
     ORDER BY Rule.listingPosition;
   `;
-
-  
+  console.log(query);
 
   const results = await db.getAllAsync<RuleListInfo>(query, [
+    FrequencyType.Weekly,
     date.getDay(),
-    formattedDate,
+    FrequencyType.Monthly,
+    date.getDate(),
+    FrequencyType.Daily,
   ]);
   const rules = [] as RuleListInfo[];
 
   for (const result of results) {
     rules.push(result);
   }
-
+  await db.closeAsync();
   return rules;
 }
 
@@ -185,8 +215,8 @@ export async function saveHistory(history: SaveHistoryProps) {
     history.value ?? null,
     history.historyTargetValue ?? null,
   ]);
-
-  const teste = await getAllHistory();
+  await db.closeAsync();
+  //const teste = await getAllHistory();
 }
 
 export async function updateOrder(reorderInfo: ReorderRuleProps[]) {
@@ -200,26 +230,28 @@ export async function updateOrder(reorderInfo: ReorderRuleProps[]) {
   for (const { id, listingPosition } of reorderInfo) {
     await db.runAsync(query, [listingPosition, id]);
   }
+  await db.closeAsync();
 }
 
 export async function createRule(rule: CreateRuleProps) {
   const db = await getDBConnection();
   const ruleId = Crypto.randomUUID();
   const query = `
-    INSERT INTO Rule (id, name, description, active, daysInMonth, frequencyType, timeOfTheDay, ruleType, targetValue)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+    INSERT INTO Rule (id, name, description, active, frequencyType, timeOfTheDay, ruleType, targetValue)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
   `;
+
   await db.runAsync(query, [
     ruleId,
     rule.name,
     rule.description,
     1,
-    JSON.stringify(rule.daysInMonth?.map((date) => date.toISOString()) ?? []),
     rule.frequencyType,
     rule.timeOfTheDay,
     rule.ruleType ?? "Discrete", //TODO: remover nullable depois
     rule.targetValue ?? null,
   ]);
+
   if (rule.frequencyType === FrequencyType.Weekly) {
     const weekDaysQuery = `
     INSERT INTO RuleWeekDays (ruleId, weekDayId)
@@ -230,6 +262,17 @@ export async function createRule(rule: CreateRuleProps) {
       await db.runAsync(weekDaysQuery, ruleId, weekDayId);
     }
   }
+  if (rule.frequencyType === FrequencyType.Monthly) {
+    const monthDaysQuery = `
+    INSERT INTO RuleMonthDays (ruleId, dayInMonth)
+    VALUES (?, ?);
+  `;
+
+    for (const dayInMonth of rule.daysInMonth) {
+      await db.runAsync(monthDaysQuery, ruleId, dayInMonth);
+    }
+  }
+  await db.closeAsync();
 }
 
 export async function disableRule(id: string) {
@@ -240,6 +283,7 @@ export async function disableRule(id: string) {
     WHERE id = ?;
   `;
   await db.runAsync(query, id);
+  await db.closeAsync();
 }
 
 export async function enableRule(id: string) {
@@ -250,4 +294,5 @@ export async function enableRule(id: string) {
     WHERE id = ?;
   `;
   await db.runAsync(query, id);
+  await db.closeAsync();
 }

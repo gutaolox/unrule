@@ -59,23 +59,25 @@ Join our community of developers creating universal apps.
 - Seletor de data - OK
 - {MVP} 
 - Numero de tarefas concluidas por total - OK
-- Usar reducer parar a rules api
-- Atualizar tela puxando pra cima
-- Tarefas mensais
-- Criação de icone e colocar no header
+- Usar reducer parar a rules api - OK 
+- Atualizar tela puxando pra cima - OK
+- Bug: multiplas requisições geram problema no sqlite - OK
+- Tarefas mensais - OK 
+- Tela de detalhes do hábito 
+- Justificativa de falta
 - Menu pra tela de tarefas unicas
    - fazr divisao de as de hoje e as on range
 - Tela de tarefas unicas
 - Menu em tab para seleção de visualização
-- Tela de detalhes do hábito
 - Hábito com valor continuo
 - Hábito de registro
 - Edição de regra
-- Justificativa de falta
+- Criação de icone e colocar no header
 - Como voce se sentiu
-- Montar um historico
+ - Montar um historico
    - Salvar versão antiga pra historioco
 - Tela com todos os registros (os deletados ficam apagadinhos)
+- Ordenação de itens
 - tela com desabilitados exclusiva
    - Filtro nessa tela??
 - Objetivos linkados

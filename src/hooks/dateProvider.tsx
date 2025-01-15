@@ -32,6 +32,7 @@ const DateProvider: React.FC<{ children: React.ReactNode }> = ({
     const date = initDate();
     setSelectedDate(date);
   };
+
   const nextDate = () => {
     const nextDay = new Date(selectedDate);
     nextDay.setDate(selectedDate.getDate() + 1);

@@ -4,7 +4,7 @@ export interface Rule {
   description: string;
   active: boolean;
   weekDays: string[];
-  daysInMonth: Date[];
+  daysInMonth: number[];
   frequencyType: FrequencyType;
   timeOfTheDay: TimeOfTheDay;
   ruleType: RuleType;

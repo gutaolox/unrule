@@ -12,7 +12,8 @@ const RulesLayout: React.FC = () => {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="create"  />
+      <Stack.Screen name="create" />
+      <Stack.Screen name="details" />
     </Stack>
   );
 };

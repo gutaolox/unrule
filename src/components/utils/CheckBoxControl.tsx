@@ -24,7 +24,6 @@ const CheckBoxControl = ({
     onCheck(value);
   };
   useEffect(() => {
-    console.log(initialValue);
     setChecked(initialValue);
   }, [initialValue]);
 
