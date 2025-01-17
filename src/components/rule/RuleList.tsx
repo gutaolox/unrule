@@ -12,7 +12,7 @@ import { RuleListInfo } from "@/src/entity/ruleBase";
 import { router } from "expo-router";
 
 const RuleList: React.FC = () => {
-  const { rules, setRules, updateOrderService, resetData, representationDate } =
+  const { rules, setRules, resetData, representationDate } =
     useContext(RuleContext);
   const scrollViewRef = useRef(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -54,28 +54,26 @@ const RuleList: React.FC = () => {
       <TouchableOpacity
         key={item.id}
         style={[styles.item, isActive && styles.active]}
-        onPressIn={onDragStart}
+        onLongPress={onDragStart}
         onPressOut={onDragEnd}
-        
-        onLongPress={() => {// melhorar forma de pressionar 
-          router.navigate({
-            pathname: "/(rules)/details",
-            params: {
-              ...item,
-              status: item.status ? 1 : 0,
-              completionDate: item.completionDate?.toLocaleDateString(),
-              active: item.active ? 1 : 0,
-              representationDate: representationDate?.toLocaleDateString(),
-            },
-          });
-        }}
+
+        // onLongPress={() => {// melhorar forma de pressionar
+        //   router.navigate({
+        //     pathname: "/(rules)/details",
+        //     params: {
+        //       ...item,
+        //       status: item.status ? 1 : 0,
+        //       completionDate: item.completionDate?.toLocaleDateString(),
+        //       active: item.active ? 1 : 0,
+        //       representationDate: representationDate?.toLocaleDateString(),
+        //     },
+        //   });
+        // }}
       >
         <RuleCard
-          text={item.name}
           data={{
-            ruleId: item.id,
-            representationDate: representationDate,
-            status: item.status,
+            ...item,
+            representationDate,
           }}
         />
       </TouchableOpacity>

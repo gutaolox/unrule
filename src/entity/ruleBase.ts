@@ -3,13 +3,20 @@ export interface Rule {
   name: string;
   description: string;
   active: boolean;
-  weekDays: string[];
+  daysOfWeek: number[];
   daysInMonth: number[];
   frequencyType: FrequencyType;
   timeOfTheDay: TimeOfTheDay;
   ruleType: RuleType;
   targetValue?: string;
   listingPosition: number;
+  modifiedAt: Date;
+  justificationId: string;
+}
+
+export interface Justification {
+  id: string;
+  justification: string;
 }
 
 export interface RulesHistyory {
@@ -17,6 +24,7 @@ export interface RulesHistyory {
   ruleId: string;
   representationDate: Date;
   completionDate: Date;
+  justificationId: string;
   status: boolean;
   value?: string;
   historyTargetValue?: string;
@@ -28,7 +36,8 @@ export type SaveHistoryProps = Omit<RulesHistyory, "id" | "completionDate">;
 
 export interface RuleListInfo
   extends Rule,
-    Omit<RulesHistyory, "id" | "weekDays"> {
+  Omit<RulesHistyory, "id"> {
+  justification: string;
   weekDayId: number;
   weekDayName: string;
   weekDayCode: number;

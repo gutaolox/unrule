@@ -18,13 +18,10 @@ import {
   disableRule,
   enableRule,
   getRulesWithHistory,
-  resetDatabase,
   saveHistory,
-  updateOrder,
 } from "../services/rules";
 import { DateContext } from "./dateProvider";
 import RuleOrderReducer from "../reducers/RuleReducer";
-import { set } from "react-hook-form";
 
 interface RuleContextProps {
   rules: RuleListInfo[];
@@ -36,6 +33,8 @@ interface RuleContextProps {
   setRules: React.Dispatch<React.SetStateAction<RuleListInfo[]>>;
   representationDate: Date;
   resetData: () => void;
+  selectedRule?: RuleListInfo;
+  setSelectedRule: React.Dispatch<React.SetStateAction<RuleListInfo | undefined>>;
 }
 
 // Crie o contexto
@@ -49,6 +48,8 @@ const RuleContext = createContext<RuleContextProps>({
   setRules: () => {},
   representationDate: new Date(),
   resetData: () => {},
+  selectedRule: undefined,
+  setSelectedRule: () => {},
 });
 
 // Crie o provider
@@ -57,8 +58,8 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [data, setData] = useState<RuleListInfo[]>([]);
   const [lastPosition, setLastPosition] = useState<number>(0);
+  const [selectedRule, setSelectedRule] = useState<RuleListInfo>();
   const { selectedDate, resetDate } = useContext(DateContext);
-  const [ruleOrders, dispatchOrder] = useReducer(RuleOrderReducer, []);
 
   const createRuleService = async (rule: CreateRuleProps) => {
     try {
@@ -68,6 +69,7 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Failed to create rule", error);
     }
   };
+
   const saveHistoryService = async (history: SaveHistoryProps) => {
     try {
       await saveHistory(history);
@@ -77,8 +79,8 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
   const updateOrderService = (reorderInfo: ReorderRuleProps[]) => {
-    dispatchOrder({ type: "UPDATE_ORDER", data: reorderInfo });
-    setLastPosition(reorderInfo[reorderInfo.length - 1].listingPosition + 1);
+    // dispatchOrder({ type: "UPDATE_ORDER", data: reorderInfo });
+    // setLastPosition(reorderInfo[reorderInfo.length - 1].listingPosition + 1);
   };
   const disableRuleService = async (id: string) => {
     await disableRule(id);
@@ -90,7 +92,9 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setDatabase = useCallback(async () => {
     try {
+      //await resetAndRecreateDatabase();
       await createTables();
+      console.log("tarefa criada")
       //await resetDatabase()
     } catch (error) {
       console.error("Setting up database", error);
@@ -133,6 +137,8 @@ const RuleProvider: React.FC<{ children: React.ReactNode }> = ({
         representationDate: selectedDate,
         setRules: setData,
         resetData,
+        selectedRule,
+        setSelectedRule,
       }}
     >
       {children}

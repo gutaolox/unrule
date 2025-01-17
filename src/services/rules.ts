@@ -1,3 +1,4 @@
+import { SQLiteDatabase } from "expo-sqlite";
 import {
   CreateRuleProps,
   FrequencyType,
@@ -40,8 +41,9 @@ export const getAllRuleWeekDays = async () => {
   return results;
 };
 
-export const createTables = async () => {
-  const db = await getDBConnection();
+export const createTables = async (db?: SQLiteDatabase) => {
+  const isParameterDb = !!db;
+  const dbResultante = isParameterDb ? db : await getDBConnection();
 
   const createRuleTableQuery = `
     CREATE TABLE IF NOT EXISTS Rule (
@@ -57,6 +59,14 @@ export const createTables = async () => {
       listingPosition INTEGER AUTO_INCREMENT DEFAULT 0
     );
   `;
+
+  const createJustificationTableQuery = `
+    CREATE TABLE IF NOT EXISTS Justification (
+      id TEXT PRIMARY KEY NOT NULL,
+      justification TEXT,
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `
 
   const createHistoryTableQuery = `
     CREATE TABLE IF NOT EXISTS History (
@@ -98,14 +108,18 @@ export const createTables = async () => {
     );
   `;
 
-  await db.execAsync(`
+  await dbResultante.execAsync(`
     PRAGMA journal_mode = WAL;
     ${createRuleTableQuery}
     ${createHistoryTableQuery}
     ${createWeekDaysTableQuery}
     ${createRuleWeekDaysTableQuery}
     ${createRuleMonthDays}
+    ${createJustificationTableQuery}
   `);
+  await addNewColumnIfNotExists(dbResultante, "Rule", "daysOfWeek");
+  await addNewColumnIfNotExists(dbResultante, "Rule", "modifiedAt");
+  await addNewColumnIfNotExists(dbResultante, "History", "justificationId", );
 
   const weekDays = [
     { id: 0, name: "Sunday", code: 0 },
@@ -118,33 +132,43 @@ export const createTables = async () => {
   ];
 
   for (const day of weekDays) {
-    await db.runAsync(
+    await dbResultante.runAsync(
       `INSERT OR IGNORE INTO WeekDays (id, name, code) VALUES (?, ?, ?)`,
       day.id,
       day.name,
       day.code
     );
   }
-  //await db.closeAsync()
+  if (!isParameterDb) await dbResultante.closeAsync();
 };
 
-export const resetDatabase = async () => {
-  const db = await getDBConnection();
+const addNewColumnIfNotExists = async (
+  db: SQLiteDatabase,
+  tableName: string,
+  columnName: string,
+  complement = ""
+) => {
+  try {
+    // Verificar se a coluna já existe
+    const result = await db.getAllAsync<{ name: string }>(
+      `PRAGMA table_info(${tableName})`
+    );
+    const columnExists = result.some((column) => column.name === columnName);
 
-  const dropRuleWeekDaysTableQuery = "DROP TABLE IF EXISTS RuleWeekDays";
-  const dropWeekDaysTableQuery = "DROP TABLE IF EXISTS WeekDays";
-  const dropHistoryTableQuery = "DROP TABLE IF EXISTS History";
-  const dropRuleTableQuery = "DROP TABLE IF EXISTS Rule";
-
-  await db.execAsync(`
-    ${dropRuleWeekDaysTableQuery};
-    ${dropWeekDaysTableQuery};
-    ${dropHistoryTableQuery};
-    ${dropRuleTableQuery};
-  `);
-
-  console.log("Database reset successfully");
-  await db.closeAsync();
+    if (!columnExists) {
+      // Adicionar a nova coluna se não existir
+      const addColumnQuery = `
+        ALTER TABLE ${tableName}
+        ADD COLUMN ${columnName} TEXT ${complement};
+      `;
+      await db.execAsync(addColumnQuery);
+      console.log("New column added successfully");
+    } else {
+      console.log("Column already exists");
+    }
+  } catch (error) {
+    console.error("Error checking or adding new column:", error);
+  }
 };
 
 export async function getRulesWithHistory(date: Date): Promise<RuleListInfo[]> {
@@ -154,21 +178,18 @@ export async function getRulesWithHistory(date: Date): Promise<RuleListInfo[]> {
     date.getMonth() + 1,
     0,
     12
-  ).getDate(); 
+  ).getDate();
 
   const isLastDayOfMonth = lastDayOfMonth === date.getDate();
-  console.log(lastDayOfMonth);
-  console.log(date.getDate());
-  console.log(new Date(date.getFullYear(), date.getMonth(), 0, 12));
   const query = `
-    SELECT Rule.*, History.representationDate, History.status, History.value, History.targetValue,
-           WeekDays.id as weekDayId, WeekDays.name as weekDayName, WeekDays.code as weekDayCode,RuleMonthDays.dayInMonth 
-
+    SELECT Rule.*, History.representationDate, History.status, History.value, History.targetValue,History.justification as justificationId, Justification.justification as justification,
+           WeekDays.id as weekDayId, WeekDays.name as weekDayName, WeekDays.code as weekDayCode,RuleMonthDays.dayInMonth
     FROM Rule
-    LEFT JOIN History ON Rule.id = History.ruleId
+    LEFT JOIN History ON Rule.id = History.ruleId AND History.representationDate = ?
     LEFT JOIN RuleWeekDays ON Rule.id = RuleWeekDays.ruleId
     LEFT JOIN WeekDays ON RuleWeekDays.weekDayId = WeekDays.id
     LEFT JOIN RuleMonthDays ON Rule.id = RuleMonthDays.ruleId
+    LEFT JOIN Justification ON History.justificationId = Justification.id
     WHERE  ((Rule.frequencyType = ? AND (WeekDays.id = ? OR WeekDays.code IS NULL))
     OR (Rule.frequencyType = ? AND ${
       isLastDayOfMonth
@@ -178,9 +199,11 @@ export async function getRulesWithHistory(date: Date): Promise<RuleListInfo[]> {
     AND Rule.active = 1
     ORDER BY Rule.listingPosition;
   `;
-  console.log(query);
+  const teste = await getAllHistory();
+  console.log(teste);
 
   const results = await db.getAllAsync<RuleListInfo>(query, [
+    date.toISOString().split("T")[0],
     FrequencyType.Weekly,
     date.getDay(),
     FrequencyType.Monthly,
@@ -198,25 +221,29 @@ export async function getRulesWithHistory(date: Date): Promise<RuleListInfo[]> {
 
 export async function saveHistory(history: SaveHistoryProps) {
   const db = await getDBConnection();
+  console.log(history.representationDate.toISOString().split("T")[0]);
   const query = `
-    INSERT OR REPLACE INTO History (id, ruleId, representationDate, status, value, targetValue)
+    INSERT OR REPLACE INTO History (id, ruleId, representationDate, status, value, targetValue, justificationId)
     VALUES (
       COALESCE((SELECT id FROM History WHERE ruleId = ? AND representationDate = ?), ?),
-      ?, ?, ?, ?, ?
+      ?, ?, ?, ?, ?, ?
     );
   `;
+  const representationDate = history.representationDate
+    .toISOString()
+    .split("T")[0];
   await db.runAsync(query, [
     history.ruleId,
-    history.representationDate.toISOString(),
+    representationDate,
     Crypto.randomUUID(),
     history.ruleId,
-    history.representationDate.toISOString(),
+    representationDate,
     history.status ? 1 : 0,
     history.value ?? null,
     history.historyTargetValue ?? null,
+    history.justificationId ?? null,
   ]);
   await db.closeAsync();
-  //const teste = await getAllHistory();
 }
 
 export async function updateOrder(reorderInfo: ReorderRuleProps[]) {
@@ -237,8 +264,8 @@ export async function createRule(rule: CreateRuleProps) {
   const db = await getDBConnection();
   const ruleId = Crypto.randomUUID();
   const query = `
-    INSERT INTO Rule (id, name, description, active, frequencyType, timeOfTheDay, ruleType, targetValue)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    INSERT INTO Rule (id, name, description, active, frequencyType, timeOfTheDay, ruleType, targetValue, daysInMonth, daysOfWeek, modifiedAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
   `;
 
   await db.runAsync(query, [
@@ -250,6 +277,9 @@ export async function createRule(rule: CreateRuleProps) {
     rule.timeOfTheDay,
     rule.ruleType ?? "Discrete", //TODO: remover nullable depois
     rule.targetValue ?? null,
+    rule.daysInMonth?.join(",") ?? null,
+    rule.daysOfWeek?.join(",") ?? null,
+    new Date().toISOString(),
   ]);
 
   if (rule.frequencyType === FrequencyType.Weekly) {
@@ -258,7 +288,7 @@ export async function createRule(rule: CreateRuleProps) {
     VALUES (?, ?);
   `;
 
-    for (const weekDayId of rule.weekDays) {
+    for (const weekDayId of rule.daysOfWeek) {
       await db.runAsync(weekDaysQuery, ruleId, weekDayId);
     }
   }

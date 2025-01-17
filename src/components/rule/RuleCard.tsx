@@ -1,40 +1,55 @@
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { View, StyleSheet,  TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useContext } from "react";
 import CheckBoxControl from "../utils/CheckBoxControl";
 import { RuleContext } from "@/src/hooks/ruleProvider";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { SaveHistoryProps } from "@/src/entity/ruleBase";
+import { RuleListInfo, SaveHistoryProps } from "@/src/entity/ruleBase";
+import OptionsMenu from "../utils/optionsMenu";
 
 interface RuleCardProps {
-  text: string;
-  data: SaveHistoryProps;
+  data: RuleListInfo;
 }
 
-const RuleCard: React.FC<RuleCardProps> = ({ text,data }) => {
-  const { saveHistoryService, disableRuleService } = useContext(RuleContext)
+const RuleCard: React.FC<RuleCardProps> = ({ data }) => {
+  const { saveHistoryService, disableRuleService, setSelectedRule } =
+    useContext(RuleContext); // usar o contexto
   return (
     <View style={styles.container}>
       <Card style={styles.card}>
         <View style={styles.row}>
           <CheckBoxControl
-            onCheck={(value) => saveHistoryService({ ...data, status: value })}
-            value={text}
+            onCheck={(value) =>
+              saveHistoryService({
+                ruleId: data.id,
+                representationDate: data.representationDate,
+                status: value,
+                justificationId: data.justificationId,
+              })
+            }
+            value={data.name}
             initialValue={data.status}
           />
           <View style={styles.textContainer}>
-            <Text style={styles.text}>{text}</Text>
+            <Text style={styles.text}>{data.name}</Text>
           </View>
           <View>
-            <TouchableOpacity onPress={() => disableRuleService(data.ruleId)}>
-              <MaterialIcons
-                name="disabled-by-default"
-                size={24}
-                color="grey"
-              />
-            </TouchableOpacity>
+            <OptionsMenu
+              options={[
+                {
+                  name: "Delete",
+                  onClick: () => disableRuleService(data.ruleId),
+                },
+                {
+                  name: "Justificar",
+                  onClick: () => {
+                    setSelectedRule(data);
+                  },
+                },
+              ]}
+            />
           </View>
         </View>
       </Card>

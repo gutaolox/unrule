@@ -1,7 +1,6 @@
 // screens/DetailScreen.tsx
 import * as React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { RuleListInfo } from "@/src/entity/ruleBase";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 
 
@@ -21,17 +20,13 @@ export default function DetailScreen() {
       <Text>Frequency Type: {item.frequencyType}</Text>
       <Text>Time of the Day: {item.timeOfTheDay}</Text>
       <Text>Rule Type: {item.ruleType}</Text>
-      <Text>Target Value: {item.targetValue}</Text>
       <Text>Listing Position: {item.listingPosition}</Text>
-      <Text>Rule ID: {item.ruleId}</Text>
       <Text>Representation Date: {item.representationDate}</Text>
       <Text>Completion Date: {item.completionDate}</Text>
       <Text>Status: {item.status ? "Completed" : "Pending"}</Text>
       <Text>Value: {item.value}</Text>
+      <Text>Target Value: {item.targetValue}</Text>
       <Text>History Target Value: {item.historyTargetValue}</Text>
-      <Text>Week Day ID: {item.weekDayId}</Text>
-      <Text>Week Day Name: {item.weekDayName}</Text>
-      <Text>Week Day Code: {item.weekDayCode}</Text>
     </View>
   );
 }

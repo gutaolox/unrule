@@ -63,18 +63,20 @@ Join our community of developers creating universal apps.
 - Atualizar tela puxando pra cima - OK
 - Bug: multiplas requisições geram problema no sqlite - OK
 - Tarefas mensais - OK 
-- Tela de detalhes do hábito 
+- Colocar tela pra vizualização simples das tabelas
 - Justificativa de falta
+- Pesquisa em tela dos items pelo nome
 - Menu pra tela de tarefas unicas
    - fazr divisao de as de hoje e as on range
 - Tela de tarefas unicas
 - Menu em tab para seleção de visualização
 - Hábito com valor continuo
 - Hábito de registro
+- Tela de detalhes do hábito 
 - Edição de regra
 - Criação de icone e colocar no header
 - Como voce se sentiu
- - Montar um historico
+ - Montar um historico da propria regra porque quando ele mudar os dias o tracking ser feito certinho
    - Salvar versão antiga pra historioco
 - Tela com todos os registros (os deletados ficam apagadinhos)
 - Ordenação de itens
