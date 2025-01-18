@@ -1,13 +1,12 @@
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet } from "react-native";
 import React, { useContext } from "react";
 import CheckBoxControl from "../utils/CheckBoxControl";
 import { RuleContext } from "@/src/hooks/ruleProvider";
-
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { RuleListInfo, SaveHistoryProps } from "@/src/entity/ruleBase";
+import { RuleListInfo } from "@/src/entity/ruleBase";
 import OptionsMenu from "../utils/optionsMenu";
+import { router } from "expo-router";
 
 interface RuleCardProps {
   data: RuleListInfo;
@@ -17,8 +16,8 @@ const RuleCard: React.FC<RuleCardProps> = ({ data }) => {
   const { saveHistoryService, disableRuleService, setSelectedRule } =
     useContext(RuleContext); // usar o contexto
   return (
-    <View style={styles.container}>
-      <Card style={styles.card}>
+    <View style={styles.container} >
+      <Card  style={styles.card}>
         <View style={styles.row}>
           <CheckBoxControl
             onCheck={(value) =>
@@ -48,6 +47,10 @@ const RuleCard: React.FC<RuleCardProps> = ({ data }) => {
                     setSelectedRule(data);
                   },
                 },
+                {
+                  name: "Data Info",
+                  onClick: () => router.navigate("/(rules)/dataInfo"),
+                }
               ]}
             />
           </View>

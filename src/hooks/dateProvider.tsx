@@ -21,7 +21,8 @@ const DateProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const initDate = () => {
     const date = new Date();
-    date.setHours(date.getHours() - 6); // configuravel
+    const timezoneOffset = date.getTimezoneOffset()/60;
+    date.setHours(date.getHours() - 6 - timezoneOffset); // configuravel
     return date;
   };
 

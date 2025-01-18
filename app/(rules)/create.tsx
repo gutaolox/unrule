@@ -113,7 +113,7 @@ export default function CreateRule() {
         <TextTranslated style={styles.label}>DaysOfWeek</TextTranslated>
         <Controller
           control={control}
-          name="weekDays"
+          name="daysOfWeek"
           render={({ field: { onChange } }) => (
             <View>
               {weekDaysOptions.map((day) => (

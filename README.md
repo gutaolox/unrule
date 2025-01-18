@@ -63,7 +63,7 @@ Join our community of developers creating universal apps.
 - Atualizar tela puxando pra cima - OK
 - Bug: multiplas requisições geram problema no sqlite - OK
 - Tarefas mensais - OK 
-- Colocar tela pra vizualização simples das tabelas
+- Colocar tela pra vizualização simples das tabelas - OK
 - Justificativa de falta
 - Pesquisa em tela dos items pelo nome
 - Menu pra tela de tarefas unicas
@@ -90,6 +90,7 @@ Join our community of developers creating universal apps.
    - visualizar todas as data e mostrar justificativas se tiver junto com se completou ou não 
    - agrupar por semana?? e por mes??
    - se for dado continuo ou de armazenamento mostrar grafico
+- Regras condicionais, ou seja regra pra caso algo tenha acontecido 
 - Back up de informação
 - Melhorar estilos
 - Login

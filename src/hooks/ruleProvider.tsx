@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import {
   CreateRuleProps,
+  Justification,
   ReorderRuleProps,
   RuleListInfo,
   SaveHistoryProps,
@@ -22,6 +23,7 @@ import {
 } from "../services/rules";
 import { DateContext } from "./dateProvider";
 import RuleOrderReducer from "../reducers/RuleReducer";
+import { getJustifications } from "../services/justification";
 
 interface RuleContextProps {
   rules: RuleListInfo[];
@@ -34,7 +36,10 @@ interface RuleContextProps {
   representationDate: Date;
   resetData: () => void;
   selectedRule?: RuleListInfo;
-  setSelectedRule: React.Dispatch<React.SetStateAction<RuleListInfo | undefined>>;
+  setSelectedRule: React.Dispatch<
+    React.SetStateAction<RuleListInfo | undefined>
+  >;
+  
 }
 
 // Crie o contexto

@@ -6,10 +6,11 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 type DropdownSelectorProps = {
     onSelect: (value: string) => void;
     data: { label: string; value: string }[];
+    value?: string;
 };
 
-const DropdownSelector: React.FC<DropdownSelectorProps> = ({ onSelect,data }) => {
-  const [value, setValue] = useState(null);
+const DropdownSelector: React.FC<DropdownSelectorProps> = ({ onSelect,data,value }) => {
+  
   const [isFocus, setIsFocus] = useState(false);
 
   return (
@@ -31,7 +32,6 @@ const DropdownSelector: React.FC<DropdownSelectorProps> = ({ onSelect,data }) =>
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
         onChange={(item) => {
-          setValue(item.value);
             setIsFocus(false);
             onSelect(item.value);
         }}

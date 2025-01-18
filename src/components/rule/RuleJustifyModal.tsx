@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -12,8 +12,13 @@ import {
 import AntDesign from "@expo/vector-icons/AntDesign";
 import If from "../utils/If";
 import DropdownSelector from "../utils/DropdownSelector";
-import { set } from "react-hook-form";
 import { SaveHistoryProps } from "@/src/entity/ruleBase";
+import { RuleContext } from "@/src/hooks/ruleProvider";
+import {
+  createJustification,
+  getJustifications,
+} from "@/src/services/justification";
+import { set } from "react-hook-form";
 
 interface RuleJustifyModalProps {
   isOpen: boolean;
@@ -25,9 +30,46 @@ const RuleJustifyModal: React.FC<RuleJustifyModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { selectedRule, saveHistoryService } = useContext(RuleContext);
   const [isAddingJustification, setIsAddingJustification] =
     useState<boolean>(false);
-  const [justification, setJustification] = useState<string>("");
+  const [newJustification, setNewJustification] = useState<string>();
+  const [historyData, setHistoryData] = useState<SaveHistoryProps>();
+  const [options, setOptions] = useState<{ label: string; value: string }[]>(
+    []
+  );
+  async function fetchOptions() {
+    const options = await getJustifications();
+    setOptions(
+      options.map((option) => ({
+        label: option.justification,
+        value: option.id,
+      }))
+    );
+  }
+
+  async function onAddNewJustification(justification: string) {
+    const newJustification = await createJustification(justification);
+    setOptions([
+      ...options,
+      { label: newJustification.justification, value: newJustification.id },
+    ]);
+    if (!historyData) return;
+    setHistoryData({ ...historyData, justificationId: newJustification.id });
+  }
+
+  useEffect(() => {
+    fetchOptions();
+    if (selectedRule) {
+      setHistoryData({
+        ruleId: selectedRule.id,
+        representationDate: selectedRule.representationDate,
+        status: selectedRule.status,
+        justificationId: selectedRule.justificationId,
+      });
+    }
+  }, [selectedRule]);
+
   return (
     <Modal visible={isOpen} animationType="slide" onDismiss={onClose}>
       <View style={{ display: "flex", justifyContent: "space-between" }}>
@@ -42,21 +84,42 @@ const RuleJustifyModal: React.FC<RuleJustifyModalProps> = ({
           <TextInput
             placeholder="Justificação"
             style={styles.modalText}
-            onChange={(e) => console.log(e.nativeEvent.text)}
+            value={newJustification}
+            onChange={(e) => {
+              setNewJustification(e.nativeEvent.text);
+            }}
           />
+
           <Button
             title="Adicionar"
-            onPress={() => setIsAddingJustification(false)}
+            onPress={() => {
+              setIsAddingJustification(false);
+              onAddNewJustification(newJustification ?? "");
+            }}
           />
         </If>
         <If condition={!isAddingJustification}>
           <DropdownSelector
-            data={[]}
+            data={options}
+            value={historyData?.justificationId}
             onSelect={(value: string) => {
-              setJustification(value);
+              if (!historyData) return;
+              setHistoryData({ ...historyData, justificationId: value });
             }}
           />
-          <Button title="Save" onPress={} />
+          <View>
+            <Button
+              title="Adicionar justificativa"
+              onPress={() => setIsAddingJustification(true)}
+            />
+            <Button
+              title="Save"
+              onPress={() => {
+                if (!historyData) return;
+                saveHistoryService(historyData);
+              }}
+            />
+          </View>
         </If>
       </View>
     </Modal>
